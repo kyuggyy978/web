@@ -1,3 +1,4 @@
+//   method 1
 String ENDPOINT_ADDRESS = "http://sample-2k8/PrintWS/PrintSample.asmx";
 		String paraURL;
 		URLConnection httpsConnection = null;
@@ -32,3 +33,60 @@ String ENDPOINT_ADDRESS = "http://sample-2k8/PrintWS/PrintSample.asmx";
 	    logger.info(result);
 		
 		return result;
+		
+
+//   method 2
+ URL url = new URL("http://cash-2k8/PrintInvoiceWS/PrintInvoice.asmx");  
+	        //第二步：開啟一個通向服務地址的連線  
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();  
+	        //第三步：設定引數  
+	        //3.1傳送方式設定：POST必須大寫  
+	        connection.setRequestMethod("POST");  
+	        //3.2設定資料格式：content-type  
+	        connection.setRequestProperty("content-type", "text/xml;charset=UTF-8");  
+	        //3.3設定輸入輸出，因為預設新建立的connection沒有讀寫許可權，  
+	        connection.setDoInput(true);  
+	        connection.setDoOutput(true);  
+	  
+	        //第四步：組織SOAP資料，傳送請求  
+	        String para = "para";
+	        String soapXML =
+		"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">"+
+	            "<soapenv:Header/>"+
+	            "<soapenv:Body>"+
+	            "<tem:Print>"+
+	            "<!--Optional:-->"+
+	            "<tem:PrintPar>"+ para +"</tem:PrintPar>"+
+	            "</tem:Print>"+
+	            "</soapenv:Body>"+
+	        "</soapenv:Envelope>";	
+	        //將資訊以流的方式傳送出去
+	        OutputStream os = connection.getOutputStream();  
+	        os.write(soapXML.getBytes());  
+	        //第五步：接收服務端響應，列印  
+	        int responseCode = connection.getResponseCode();
+	        
+	        if(200 == responseCode){//表示服務端響應成功  
+	            //獲取當前連線請求返回的資料流
+	            InputStream is = connection.getInputStream();  
+	            InputStreamReader isr = new InputStreamReader(is);  
+	            BufferedReader br = new BufferedReader(isr);  
+	              
+	            StringBuilder sb = new StringBuilder();  
+	            String temp = null;  
+	            while(null != (temp = br.readLine())){  
+	                sb.append(temp);  
+	            }  
+	            
+	            /**
+	             * 列印結果
+	             */
+	            System.out.println(sb.toString());  
+	            
+	            is.close();  
+	            isr.close();  
+	            br.close();  
+	        }else {
+	        	System.out.println("responseCode : " + responseCode );
+	        }
+	        os.close();  
