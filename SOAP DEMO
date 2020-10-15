@@ -1,0 +1,34 @@
+String ENDPOINT_ADDRESS = "http://sample-2k8/PrintWS/PrintSample.asmx";
+		String paraURL;
+		URLConnection httpsConnection = null;
+        URL url = new URL(ENDPOINT_ADDRESS);
+        httpsConnection =  url.openConnection();
+        httpsConnection.connect();
+		
+		SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+	    SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+	    String soapString = 
+	    		"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">"+
+	    		"<soapenv:Header/>"+
+	    			"<soapenv:Body>"+
+	    				"<tem:Print>"+
+	    				"<!--Optional:-->"+
+	    					"<tem:PrintPar>"+ paraURL +"</tem:PrintPar>"+
+	    				"</tem:Print>"+
+	    			"</soapenv:Body>"+
+	    		"</soapenv:Envelope>";
+	    		
+	    InputStream is = new ByteArrayInputStream(soapString.getBytes());
+	    SOAPMessage msg = MessageFactory.newInstance().createMessage(null, is);
+	    MimeHeaders headers = msg.getMimeHeaders();
+	    headers.setHeader("Content-Type", "text/xml; charset=UTF-8");
+	    headers.setHeader("Content-Length", String.valueOf(soapString.length()));
+	    headers.setHeader("SOAPAction", "http://tempuri.org/Print");
+	    SOAPMessage soapResponse = soapConnection.call(msg, ENDPOINT_ADDRESS);
+	    soapResponse.writeTo(System.out);
+	    SOAPBody body = soapResponse .getSOAPBody();
+	    NodeList returnList = body.getElementsByTagName("PrintResult");
+	    String result = returnList.item(0).getFirstChild().getTextContent().toString();
+	    logger.info(result);
+		
+		return result;
