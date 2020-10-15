@@ -1,0 +1,2 @@
+//for don't show the error to user browse.
+<Valve className="org.apache.catalina.valves.ErrorReportValve" showServerInfo="false" showReport="false"/>
