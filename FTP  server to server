@@ -1,0 +1,61 @@
+FTPClient ftpClient = new FTPClient();
+				String ftpPath="/";
+				String hostname = "192.168.6.193";
+				int port = 21;
+				String user = "user";
+				String pass = "pass";
+					try {
+				        ftpClient = new FTPClient();
+				        ftpClient.connect(hostname,port);// connect FTP server
+				        ftpClient.login(user, pass);// login FTP server
+				        if (!FTPReply.isPositiveCompletion(ftpClient.getReplyCode())) {
+				            ftpClient.disconnect();
+				        } else {
+				            logger.debug("FTP connected。");
+							try {
+								ftpClient.setControlEncoding("UTF-8"); // Encoding
+					            ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
+					            ftpClient.enterLocalPassiveMode();
+					            ftpClient.changeWorkingDirectory(ftpPath);
+					                
+					            String dstPath = "C:\\file\\file";
+					            File dstFile = new File(dstPath);
+								if (!dstFile.exists()) {
+									dstFile.mkdirs();// create File
+									logger.debug("file is made "+dstFile.getAbsolutePath());
+								}
+                //
+								String localPath = "C:\\file\\file";
+							    FTPFile[] fs = ftpClient.listFiles();
+							    for (FTPFile ff : fs) {
+							    	if (ff.getName().equals(respText)) {
+							    		File localFile = new File(localPath + ftpPath + ff.getName());
+							            OutputStream is = new FileOutputStream(localFile);
+							            if(ftpClient.retrieveFile(ff.getName(), is)) {
+							              File file =new File(localPath + ftpPath + ff.getName());
+                            // server to client
+									          downFileName=respText;
+									          downInputStream = new FileInputStream(file);
+							            }
+							        is.close();
+							        }
+							    }			                
+					            ftpClient.logout();
+					        } catch (FileNotFoundException e) {
+					            logger.debug("file not found");
+					            e.printStackTrace();    
+					        } catch (SocketException e) {
+					            logger.debug("FTP connection failed.");
+					            e.printStackTrace();    
+					        } catch (Exception e) {
+					            logger.debug("file read error。");
+					            e.printStackTrace();
+					        }
+				        }
+				    } catch (SocketException e) {
+				        e.printStackTrace();
+				        logger.debug("FTP IP address is not correct");
+				    } catch (Exception e) {
+				        e.printStackTrace();
+				        logger.debug("FTP port  is not correct");
+				    }	
